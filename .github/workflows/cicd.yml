@@ -87,6 +87,93 @@ jobs:
           build-name: ci-java
           test-junit-path: java-src/build/test-results/test/*.xml
 
+  test-rust:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Create output directory
+        working-directory: rust-src
+        run: mkdir -p target/test-results
+      - name: Run Rust tests
+        working-directory: rust-src
+        run: cargo test > test_output.txt 2>&1 || true
+      - name: Create JUnit XML from test results
+        working-directory: rust-src
+        run: |
+          # Parse test results and create dynamic JUnit XML
+          PASSED=$(grep -c "test.*ok" test_output.txt || echo "0")
+          FAILED=$(grep -c "test.*FAILED" test_output.txt || echo "0")
+          TOTAL=$((PASSED + FAILED))
+          
+          # Start XML file
+          cat > target/test-results/junit.xml << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          EOF
+          
+          echo "<testsuite name=\"rust-tests\" tests=\"$TOTAL\" failures=\"$FAILED\" errors=\"0\" time=\"0\">" >> target/test-results/junit.xml
+          
+          # Extract test names and results from cargo test output
+          grep "test.*::" test_output.txt | while read line; do
+            if [[ $line =~ test[[:space:]]+([^[:space:]]+)::[^[:space:]]+[[:space:]]+\.\.\.[[:space:]]+(ok|FAILED) ]]; then
+              TEST_NAME=$(echo "$line" | sed -n 's/.*test \([^[:space:]]*::[^[:space:]]*\) \.\.\. .*/\1/p')
+              TEST_RESULT="${BASH_REMATCH[2]}"
+              CLASS_NAME=$(echo "$TEST_NAME" | cut -d':' -f1-2)
+              METHOD_NAME=$(echo "$TEST_NAME" | cut -d':' -f3)
+              
+              echo "  <testcase classname=\"$CLASS_NAME\" name=\"$METHOD_NAME\" time=\"0\">" >> target/test-results/junit.xml
+              
+              # Extract all Ketryx item IDs from test name (supports KD-XX, KXITM..., or any pattern)
+              KETRYX_IDS=$(echo "$METHOD_NAME" | grep -oE "(KD[-_][0-9]+|KXITM[A-Z0-9]+|[A-Z]+-[0-9]+)" | tr '[:lower:]' '[:upper:]' | sed 's/_/-/g' | sort -u)
+              
+              # Add Ketryx traceability properties if any IDs found
+              if [[ -n "$KETRYX_IDS" ]]; then
+                echo "    <properties>" >> target/test-results/junit.xml
+                KETRYX_LIST=$(echo "$KETRYX_IDS" | tr '\n' ',' | sed 's/,$//')
+                echo "      <property name=\"tested-item-id\" value=\"$KETRYX_LIST\" />" >> target/test-results/junit.xml
+                echo "    </properties>" >> target/test-results/junit.xml
+                echo "    Found Ketryx associations: $KETRYX_LIST for test $METHOD_NAME"
+              fi
+              
+              # Add failure info if test failed
+              if [[ $TEST_RESULT == "FAILED" ]]; then
+                echo "    <failure message=\"Test failed\" />" >> target/test-results/junit.xml
+              fi
+              
+              echo "  </testcase>" >> target/test-results/junit.xml
+            fi
+          done
+          
+          echo "</testsuite>" >> target/test-results/junit.xml
+          
+          echo "Generated JUnit XML with $TOTAL tests ($PASSED passed, $FAILED failed)"
+          echo "Ketryx item associations detected automatically from test names"
+          cat target/test-results/junit.xml
+      - name: Upload Rust test results
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: test-results-rust
+          path: rust-src/target/test-results/junit.xml
+          retention-days: 7
+          if-no-files-found: error
+      - name: Report Rust build to Ketryx
+        uses: Ketryx/ketryx-github-action@v1
+        if: success() || failure()
+        with:
+          ketryx-url: ${{ vars.KETRYX_URL }}
+          project: ${{ vars.KETRYX_PROJECT }}
+          api-key: ${{ secrets.KETRYX_API_KEY }}
+          commit-sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          build-name: ci-rust
+          test-junit-path: rust-src/target/test-results/junit.xml
+
+
   create-sbom:
     runs-on: ubuntu-latest
     steps:
