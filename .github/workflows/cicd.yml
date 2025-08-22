@@ -30,6 +30,16 @@ jobs:
         run: cd js-src && npm run test:unit-integration-ci
       - name: Run end-to-end tests
         run: cd js-src && npm run test:e2e
+      - name: Run Jest Code Coverage
+        run: cd js-src && npm run test:ci -- --coverage
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: coverage-report
+          path: js-src/lcov-report/index.html
+          retention-days: 7
+          if-no-files-found: error
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: success() || failure()
@@ -49,6 +59,7 @@ jobs:
           build-name: ci-js
           test-junit-path: js-src/test-results/jest-junit.xml
           test-cucumber-path: js-src/test-results/cucumber-report.json
+          coverage-lcov-path: js-src/lcov.info
 
   test-java:
     runs-on: ubuntu-latest
@@ -173,7 +184,6 @@ jobs:
           build-name: ci-rust
           test-junit-path: rust-src/target/test-results/junit.xml
 
-
   create-sbom:
     runs-on: ubuntu-latest
     steps:
@@ -195,7 +205,7 @@ jobs:
           commit-sha: ${{ github.event.pull_request.head.sha || github.sha }}
           build-name: ci-sbom
           spdx-json-path: |
-                sbom.spdx.json
+            sbom.spdx.json
 
   check-pr:
     runs-on: ubuntu-latest
