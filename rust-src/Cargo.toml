@@ -1,0 +1,13 @@
+# This is the manifest file for your Rust project.
+# It tells Cargo how to build your code.
+
+[package]
+name = "rust-src"
+version = "0.1.0"
+edition = "2021"
+
+# The `[lib]` section is necessary to tell Cargo to compile
+# src/lib.rs as a library.
+[lib]
+name = "rust_adder"
+path = "lib.rs"
