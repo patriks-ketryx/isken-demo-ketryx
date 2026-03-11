@@ -1,7 +1,7 @@
 ---
 itemId: Identity-Aware-Policy-Evaluation-Engine
 itemType: Software Item Spec
-itemFulfills: CS-1,CS-2,CS-3,KD-20
+itemFulfills: SNPE-4
 ---
 
 # Identity-Aware Policy Evaluation Engine (Markdown)
