@@ -1,7 +1,7 @@
 ---
 itemId: Secure-Policy-Distribution-Protocol
 itemType: Software Item Spec
-itemFulfills: CS-1,CS-2,CS-3,KD-20
+itemFulfills: SNPE-7
 ---
 
 # Secure Policy Distribution Protocol (Markdown)
