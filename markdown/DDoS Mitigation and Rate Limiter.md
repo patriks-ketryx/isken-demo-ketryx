@@ -1,7 +1,7 @@
 ---
 itemId: DDoS-Mitigation-and-Rate-Limiter
 itemType: Software Item Spec
-itemFulfills: CS-1,CS-2,CS-3,KD-20
+itemFulfills: SNPE-9
 ---
 
 # DDoS Mitigation and Rate Limiter (Markdown)
