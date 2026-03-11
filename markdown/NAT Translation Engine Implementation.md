@@ -1,7 +1,7 @@
 ---
 itemId: NAT-Translation-Engine-Implementation
 itemType: Software Item Spec
-itemFulfills: CS-1,CS-2,CS-3,KD-20
+itemFulfills: SNPE-3
 ---
 
 # NAT Translation Engine Implementation (Markdown)
