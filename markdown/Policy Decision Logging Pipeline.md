@@ -1,7 +1,7 @@
 ---
 itemId: Policy-Decision-Logging-Pipeline
 itemType: Software Item Spec
-itemFulfills: CS-1,CS-2,CS-3,KD-20
+itemFulfills: SNPE-10
 ---
 
 # Policy Decision Logging Pipeline (Markdown)
