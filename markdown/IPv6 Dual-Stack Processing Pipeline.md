@@ -1,7 +1,7 @@
 ---
 itemId: IPv6-Dual-Stack-Processing-Pipeline
 itemType: Software Item Spec
-itemFulfills: CS-1,CS-2,CS-3,KD-20
+itemFulfills: SNPE-5
 ---
 
 # IPv6 Dual-Stack Processing Pipeline (Markdown)
