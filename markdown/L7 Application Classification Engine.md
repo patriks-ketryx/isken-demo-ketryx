@@ -6,4 +6,4 @@ itemFulfills: CS-1,CS-2,CS-3,KD-20
 
 # L7 Application Classification Engine (Markdown)
 
-The NAT engine shall implement: (1) Static NAT via direct mapping table, (2) Dynamic NAT via pool allocator with LRU eviction, (3) PAT via port block allocation (512 ports per block) with randomized port selection, (4) Twice NAT via chained translation entries. Translation table shall use the same Cuckoo hash structure as the connection table. ALG (Application Layer Gateway) modules for FTP, SIP, H.323, and PPTP shall modify embedded addresses in payload.
+The DPI engine shall implement a three-stage classification pipeline: (1) Protocol detection via deterministic finite automaton (DFA) matching on first 16 bytes, (2) Pattern matching using Hyperscan regex library for 5,000+ signatures compiled to SIMD-optimized bytecode, (3) Behavioral classification using flow-level ML model for encrypted traffic where protocol detection is inconclusive. Classification results shall be cached per-flow in the connection table.
