@@ -67,5 +67,3 @@ Run Java unit tests:
 cd java-src
 ./gradlew test
 ```
-
-...
