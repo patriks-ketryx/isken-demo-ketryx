@@ -68,3 +68,4 @@ cd java-src
 ./gradlew test
 ```
 1.
+2.
